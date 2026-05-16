@@ -1,136 +1,131 @@
-# Work Device Security Monitoring
+# Device Security Monitor - Transparent Monitoring Solution
 
-A transparent, employee-friendly device monitoring solution for company-issued Android devices. This system helps protect sensitive data in secure environments while maintaining employee privacy.
+A transparent, consent-based security monitoring system for corporate Android work devices.
 
-## Features
+## Overview
 
-- **Transparent Monitoring**: Employees can see what's being monitored in real-time
-- **Work-Only Focus**: Monitors work-related activity only
-- **Device Enrollment**: Simple setup via MDM or manual installation
-- **Real-time Alerts**: Notifies administrators of security events
-- **Audit Logs**: Complete history of monitoring actions
-- **Employee Dashboard**: Workers can view their own device status
+This system allows organizations to monitor company-provided work devices for security threats while maintaining employee transparency and legal compliance.
 
-## What Gets Monitored
-
-### ✅ Work-Related Activity
-- Work file access (documents, spreadsheets, presentations)
-- USB device connections
-- External storage access
-- Work application installations
-- Network connections to non-work IPs
-- Screenshot/screen capture attempts on work apps
-- Location logs during work hours
-
-### ❌ NOT Monitored
-- Personal messaging (SMS, WhatsApp, personal email)
-- Web browsing (unless accessing company systems)
-- App usage outside work hours
-- Call logs
-- Calendar/personal notes
-- Any data marked as personal
+**Key Features:**
+- ✅ Transparent monitoring (employees know they're monitored)
+- ✅ Consent-based (requires written agreement)
+- ✅ Work-focused data collection only
+- ✅ Real-time alerts for suspicious activity
+- ✅ Device enrollment management
+- ✅ Audit logging
+- ✅ Admin dashboard
 
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────┐
-│   Android Devices (15 work phones)              │
-│   ├─ Device Agent App (installed)               │
-│   └─ Reports to backend every 15 min            │
-└──────────────┬──────────────────────────────────┘
-               │
-               ↓
+│  Android Work Devices (15x)                     │
+│  ├── Device Security Agent (APK)                │
+│  ├── Monitors: WiFi, USB, Apps, Files Access   │
+│  └── Reports to Backend API                     │
+└──────────────────┬──────────────────────────────┘
+                   │
+                   ▼
 ┌─────────────────────────────────────────────────┐
-│   Backend Server (Your Infrastructure)          │
-│   ├─ API Endpoint: /api/device-reports         │
-│   ├─ Database: Device logs & events            │
-│   └─ Alert System: Notifies on suspicious activity
-└──────────────┬──────────────────────────────────┘
-               │
-               ↓
+│  Backend API Server (Your Infrastructure)       │
+│  ├── Device enrollment management               │
+│  ├── Receives monitoring reports                │
+│  ├── Stores in database                         │
+│  ├── Processes alerts                           │
+│  └── Serves admin dashboard                     │
+└──────────────────┬──────────────────────────────┘
+                   │
+                   ▼
 ┌─────────────────────────────────────────────────┐
-│   Admin Dashboard                               │
-│   ├─ View all devices & status                 │
-│   ├─ Review security events                    │
-│   └─ Generate compliance reports               │
+│  Admin Dashboard                                │
+│  ├── Real-time device status                    │
+│  ├── Security alerts                            │
+│  ├── Device activity logs                       │
+│  ├── User management                            │
+│  └── Reports                                    │
 └─────────────────────────────────────────────────┘
 ```
 
-## Quick Start
+## Data Collected (Work-Related Only)
 
-### For Administrators
+### Device Monitoring
+- Device ID, OS version, installed apps list
+- Network connections (IPs, domains, ports)
+- USB device connections
+- File access logs (work folders only)
+- Unusual process activity
+- Screen timeout events
 
-1. **Set up backend server** (see `/server` directory)
-2. **Configure device enrollment** via MDM or QR code
-3. **Share employee policy** with workers
-4. **Launch admin dashboard**
+### Security Alerts
+- Unauthorized app installations
+- Suspicious network activity
+- Multiple failed unlock attempts
+- USB data transfer attempts
+- Unencrypted data transmission
 
-### For Employees
+## Compliance & Legal
 
-1. **Receive notification** about monitoring policy
-2. **Install app** from work app store or via MDM
-3. **View monitoring status** in app settings
-4. **Access personal dashboard** to see what's monitored
+⚠️ **CRITICAL: Before deployment, you MUST:**
 
-## Legal Requirements
+1. ✅ Consult an employment lawyer in your jurisdiction
+2. ✅ Create an employee monitoring policy
+3. ✅ Obtain written consent from all employees
+4. ✅ Ensure GDPR/CCPA compliance (if applicable)
+5. ✅ Document retention policies
+6. ✅ Provide opt-out procedures
 
-⚠️ **Before deployment, you MUST:**
+See `docs/LEGAL.md` for detailed requirements.
 
-- [ ] Consult employment lawyer in your jurisdiction
-- [ ] Create written "Device Monitoring Policy"
-- [ ] Have all employees sign acknowledgment form
-- [ ] Ensure policy complies with:
-  - Local employment laws (GDPR, CCPA, state laws, etc.)
-  - Union agreements (if applicable)
-  - Industry regulations (healthcare, finance, etc.)
-- [ ] Keep audit logs of who accessed what data
-- [ ] Establish escalation process for data access
-- [ ] Define data retention period
+## Setup Instructions
 
-### Sample Employee Notification
+### Prerequisites
+- Node.js 16+ (for backend)
+- Android Studio (for agent app)
+- Database: PostgreSQL/MySQL
+- Server: Linux/Windows with Node.js support
 
-> "Company-issued devices are monitored for security purposes. Monitoring includes work files, USB connections, and external storage access during work hours. Personal data and off-hours activity are not monitored. Employees can request audit logs of their device at any time. By accepting this device, you acknowledge and consent to this monitoring."
+### Quick Start
 
-## Directory Structure
+1. **Backend Setup**
+   ```bash
+   cd backend-api
+   npm install
+   cp .env.example .env
+   # Configure database and API keys
+   npm run migrate
+   npm start
+   ```
 
-```
-├── README.md                    # This file
-├── LICENSE                      # Apache 2.0
-├── android-agent/               # Android app source code
-│   ├── app/
-│   ├── build.gradle
-│   └── AndroidManifest.xml
-├── server/                      # Backend API & database
-│   ├── api/
-│   ├── database/
-│   ├── requirements.txt
-│   └── config.example.env
-├── docs/
-│   ├── EMPLOYEE_POLICY.md      # What to share with workers
-│   ├── SETUP_GUIDE.md          # Deployment instructions
-│   └── API_REFERENCE.md        # Backend API docs
-└── scripts/
-    ├── setup-device.sh         # Device enrollment script
-    └── setup-server.sh         # Server initialization
-```
+2. **Android Agent Build**
+   ```bash
+   cd android-agent
+   ./gradlew build
+   # Sign APK with your keystore
+   ./gradlew assembleRelease
+   ```
 
-## Next Steps
+3. **Deploy to Devices**
+   - Use MDM solution (Samsung Knox, Google Workspace, Intune) OR
+   - Manual installation via ADB
 
-1. Review `/docs/EMPLOYEE_POLICY.md`
-2. Consult your legal team
-3. Set up backend server (see `/server/README.md`)
-4. Build and test Android app
-5. Deploy via MDM to first device
-6. Gather employee feedback
-7. Roll out to all 15 devices
+See `docs/DEPLOYMENT.md` for detailed steps.
 
-## Support
+## Transparency Requirements
 
-For issues or questions:
-- Create an issue in this repository
-- Contact your security team
-- Review API documentation in `/docs/API_REFERENCE.md`
+This system **must** operate transparently:
+
+- ✅ Employees must KNOW they're being monitored
+- ✅ Clear signs in workplace about monitoring
+- ✅ Written policy accessible to all employees
+- ✅ Regular training on monitoring scope
+- ✅ Monthly reports available to employees
+- ✅ Opt-out procedure (if applicable by law)
+- ✅ Data retention limits (recommend 90 days)
 
 ## License
 
 Apache License 2.0 - See LICENSE file
+
+---
+
+**⚠️ DISCLAIMER:** This tool is designed for transparent, consensual workplace monitoring. Unauthorized use or monitoring without consent may violate local, state, or federal laws.
